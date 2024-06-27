@@ -42,7 +42,7 @@ function newUrl(urlStr) {
 }
 
 export default {
-	async fetch(request: Request) {
+	async fetch(request) {
 		return fetchHandler(request);
 	},
 };
