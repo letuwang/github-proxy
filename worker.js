@@ -31,16 +31,6 @@ const exp5 = /^(?:https?:\/\/)?gist\.(?:githubusercontent|github)\.com\/.+?\/.+?
 const exp6 = /^(?:https?:\/\/)?github\.com\/.+?\/.+?\/tags.*$/i;
 
 /**
- * @param {any} body
- * @param {number} status
- * @param {Object<string, string>} headers
- */
-function makeRes(body, status = 200, headers = {}) {
-	headers['access-control-allow-origin'] = '*';
-	return new Response(body, { status, headers });
-}
-
-/**
  * @param {string} urlStr
  */
 function newUrl(urlStr) {
@@ -51,10 +41,11 @@ function newUrl(urlStr) {
 	}
 }
 
-addEventListener('fetch', (e) => {
-	const ret = fetchHandler(e).catch((err) => makeRes('cfworker error:\n' + err.stack, 502));
-	e.respondWith(ret);
-});
+export default {
+	async fetch(request: Request) {
+		return fetchHandler(request);
+	},
+};
 
 function checkUrl(u) {
 	for (let i of [exp1, exp2, exp3, exp4, exp5, exp6]) {
@@ -66,10 +57,9 @@ function checkUrl(u) {
 }
 
 /**
- * @param {FetchEvent} e
+ * @param {Request} req
  */
-async function fetchHandler(e) {
-	const req = e.request;
+async function fetchHandler(req) {
 	const urlStr = req.url;
 	const urlObj = new URL(urlStr);
 	let path = urlObj.searchParams.get('q');
